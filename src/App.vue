@@ -1,28 +1,61 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div class="container">
+      <label>Введите новый продукт <input type="text" required="true" v-model="newProduct"></label>
+      <button @click.prevent="addNewProduct">Добавить продукт</button>
+      <h1>Список продуктов</h1>
+      <ProductsList></ProductsList>
+    </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import { mapGetters, mapMutations } from 'vuex';
+import ProductsList from './components/ProductsList.vue'
 
 export default {
   name: 'App',
-  components: {
-    HelloWorld
+  data() {
+    return {
+      newProduct: ''
+    }
+  },
+  components: {ProductsList},
+  methods: {
+    ...mapMutations([
+      'addProduct',
+      'updateProductsList'
+    ]),
+    addNewProduct() {
+      if (this.newProduct) {
+        this.addProduct(this.newProduct)
+        this.newProduct = ''
+      } else {
+        return
+      }
+    }
+  },
+  computed: {
+    ...mapGetters([
+      'getProductsData'
+    ])
+  },
+  mounted() {
+    if (localStorage.userProductsList) {
+      this.updateProductsList(JSON.parse(localStorage.userProductsList));
+    }
+  },
+  watch: {
+    getProductsData: {
+      deep: true,
+      handler() {
+        localStorage.userProductsList = JSON.stringify(this.getProductsData)
+      }
+    }
   }
 }
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+
 </style>
